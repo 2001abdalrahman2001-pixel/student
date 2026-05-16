@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>دروسك</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8f9fe;
+      display: flex; justify-content: center; align-items: flex-start;
+      min-height: 100vh; padding-bottom: 70px; color: #2d2d3f;
+    }
+    .mobile-container {
+      width: 100%; max-width: 480px; background: #ffffff;
+      box-shadow: 0 0 30px rgba(0,0,0,0.05); min-height: 100vh;
+      position: relative; border-radius: 0; overflow-x: hidden;
+    }
+    .top-bar {
+      background: #6C5CE7; color: white; padding: 12px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      font-weight: bold; font-size: 1.2rem; position: sticky; top: 0; z-index: 20;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1); gap: 10px;
+    }
+    .top-bar .logo { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+    .city-filter {
+      background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 30px; padding: 8px 14px; display: flex; align-items: center; gap: 6px;
+      color: white; backdrop-filter: blur(8px); font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; transition: 0.3s; min-width: 120px;
+    }
+    .city-filter i { font-size: 1rem; }
+    .city-filter select {
+      appearance: none; background: transparent; border: none; color: white;
+      font-weight: 600; font-size: 0.85rem; outline: none; padding-left: 18px;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="14px"><path d="M7 10l5 5 5-5z"/></svg>');
+      background-repeat: no-repeat; background-position: left center; cursor: pointer;
+      font-family: inherit; width: 100%;
+    }
+    .city-filter select option { color: #2d2d3f; background: #fff; }
+
+    .page { display: none; padding: 20px 16px; animation: fadeIn 0.3s ease; }
+    .page.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .hero {
+      background: linear-gradient(135deg, #6C5CE7, #00CEC9); border-radius: 28px;
+      padding: 28px 20px 20px; color: white; text-align: center; margin-bottom: 30px;
+      box-shadow: 0 15px 30px rgba(108,92,231,0.25);
+    }
+    .hero h1 { font-size: 2.4rem; margin-bottom: 5px; letter-spacing: 2px; font-weight: 700; }
+    .hero .subtitle { font-size: 1rem; opacity: 0.95; margin-bottom: 25px; }
+    .hero-stats { display: flex; justify-content: space-around; margin-top: 20px; }
+    .hero-stat-item { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .hero-stat-item i { font-size: 1.8rem; }
+    .hero-stat-item .stat-num { font-size: 1.5rem; font-weight: 700; }
+    .hero-stat-item .stat-label { font-size: 0.75rem; opacity: 0.9; }
+
+    .wave-divider { line-height: 0; margin-top: -2px; }
+    .wave-divider svg { width: 100%; height: auto; display: block; }
+
+    .about-card {
+      background: linear-gradient(to left, #f8f9fe, #fff); border-radius: 20px;
+      padding: 20px; margin: 20px 0; border: 1px solid #eae6ff; text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+    .about-card p { font-size: 0.9rem; color: #4a4a5a; line-height: 1.6; font-weight: 500; }
+
+    .services-row { display: flex; justify-content: space-around; margin: 10px 0 20px; gap: 12px; }
+    .service-item {
+      flex: 1; background: white; border-radius: 18px; padding: 16px 8px;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04); transition: transform 0.2s;
+    }
+    .service-item:active { transform: scale(0.96); }
+    .service-item i { font-size: 1.8rem; color: #6C5CE7; }
+    .service-item span { font-size: 0.75rem; font-weight: 600; color: #2d2d3f; text-align: center; }
+
+    .toggle-container {
+      display: flex; background: #f0f2f5; border-radius: 40px; padding: 6px;
+      margin-bottom: 20px; position: sticky; top: 70px; z-index: 15;
+    }
+    .toggle-btn {
+      flex: 1; padding: 12px; border: none; background: transparent; border-radius: 30px;
+      font-weight: bold; color: #555; display: flex; align-items: center; justify-content: center;
+      gap: 8px; transition: 0.3s; cursor: pointer; font-size: 1rem;
+    }
+    .toggle-btn.active { background: #6C5CE7; color: white; box-shadow: 0 4px 12px rgba(108,92,231,0.3); }
+
+    .filter-section { margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+    .filter-select {
+      flex: 1 1 auto; padding: 10px 12px; border-radius: 20px; border: 1px solid #ddd;
+      background: white; font-family: inherit; color: #2d2d3f;
+    }
+
+    .cards-grid { display: grid; gap: 16px; margin-top: 10px; }
+    .cards-grid.single-col { grid-template-columns: 1fr; }
+    .cards-grid.two-col { grid-template-columns: repeat(2, 1fr); }
+
+    .card {
+      background: white; border-radius: 20px; overflow: hidden;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.06); transition: transform 0.2s;
+      display: flex; flex-direction: column; border: 1px solid #f0eefb;
+    }
+    .card:active { transform: scale(0.97); }
+    .card-img { width: 100%; height: 110px; object-fit: cover; background: #e0e7ee; }
+    .single-col .card-img { height: 180px; }
+    .card-body { padding: 12px; display: flex; flex-direction: column; gap: 8px; flex: 1; align-items: center; text-align: center; }
+    .card-title { font-weight: 700; font-size: 0.95rem; color: #2d2d3f; }
+    .teacher-card .card-body { align-items: flex-start; text-align: right; }
+    .teacher-card .card-sub { font-size: 0.75rem; color: #7f8c8d; display: flex; align-items: center; gap: 4px; }
+    .detail-btn {
+      background: #6C5CE7; color: white; border: none; border-radius: 30px;
+      padding: 10px 18px; margin-top: 5px; font-weight: bold;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      cursor: pointer; transition: 0.2s; font-size: 0.85rem; width: 100%;
+      box-shadow: 0 4px 10px rgba(108,92,231,0.25);
+    }
+
+    .modal {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.4); backdrop-filter: blur(6px); z-index: 100;
+      justify-content: center; align-items: flex-end;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: white; width: 100%; max-width: 480px; max-height: 90vh;
+      border-radius: 30px 30px 0 0; padding: 25px 20px 30px; overflow-y: auto;
+      box-shadow: 0 -10px 40px rgba(0,0,0,0.2); position: relative;
+    }
+    .media-row { display: flex; gap: 10px; margin-bottom: 15px; }
+    .media-row img, .media-row video { width: 50%; border-radius: 18px; object-fit: cover; height: 140px; }
+    .working-hours {
+      background: #f0eefb; border-radius: 16px; padding: 14px; margin: 15px 0;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .teacher-tags, .stages-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+    .teacher-tag, .stage-tag {
+      background: #eae6ff; color: #6C5CE7; border-radius: 20px; padding: 6px 14px;
+      font-size: 0.8rem; font-weight: 500;
+    }
+    .stage-tag { background: #dff9fb; color: #00CEC9; }
+    .whatsapp-btn {
+      background: #25D366; color: white; border: none; border-radius: 30px;
+      padding: 12px; font-weight: bold; display: flex; align-items: center;
+      justify-content: center; gap: 10px; margin-top: 16px; font-size: 1rem;
+      cursor: pointer; width: 100%;
+    }
+    .cancel-bottom-btn {
+      background: transparent; color: #e74c3c; border: 1px solid #e74c3c;
+      border-radius: 30px; padding: 10px; margin-top: 10px; font-weight: bold;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      font-size: 1rem; cursor: pointer; width: 100%;
+    }
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 480px; background: white; display: flex;
+      border-top: 1px solid #eee; z-index: 50; box-shadow: 0 -5px 15px rgba(0,0,0,0.03);
+    }
+    .nav-item {
+      flex: 1; padding: 12px; text-align: center; color: #95a5a6;
+      font-weight: 500; font-size: 0.75rem; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+    }
+    .nav-item i { font-size: 1.3rem; }
+    .nav-item.active { color: #6C5CE7; font-weight: bold; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+<div class="mobile-container">
+  <div class="top-bar">
+    <div class="logo"><i class="fas fa-graduation-cap"></i>دروسك</div>
+    <div class="city-filter">
+      <i class="fas fa-map-marker-alt"></i>
+      <select id="globalCityFilter">
+        <option value="الرقة">الرقة البلد</option>
+        <option value="الطبقة">الطبقة</option>
+        <option value="تل أبيض">تل أبيض</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="homePage" class="page active">
+    <div class="hero">
+      <h1>دروسك</h1>
+      <div class="subtitle"> دليلك المثالي نحو النجاح </div>
+      <div class="hero-stats">
+        <div class="hero-stat-item"><i class="fas fa-building"></i><span class="stat-num" id="heroInstituteCount">6</span><span class="stat-label">معاهد</span></div>
+        <div class="hero-stat-item"><i class="fas fa-user-tie"></i><span class="stat-num" id="heroTeacherCount">8</span><span class="stat-label">أساتذ</span></div>
+        <div class="hero-stat-item"><i class="fas fa-map-marker-alt"></i><span class="stat-num" id="heroAreaCount">3</span><span class="stat-label">مدن</span></div>
+      </div>
+    </div>
+    <div class="wave-divider">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120"><path fill="#ffffff" fill-opacity="1" d="M0,64L120,69.3C240,75,480,85,720,80C960,75,1200,53,1320,42.7L1440,32L1440,0L1320,0C1200,0,960,0,720,0C480,0,240,0,120,0L0,0Z"></path></svg>
+    </div>
+    <div class="about-card"><p>📚 دروسك يجمع أفضل المعاهد والأساتذة في مدينتك لتصل إليهم بسهولة</p></div>
+    <div class="services-row">
+      <div class="service-item"><i class="fas fa-clock"></i><span>توفير الوقت</span></div>
+      <div class="service-item"><i class="fas fa-comment-dots"></i><span>تواصل مباشر</span></div>
+    </div>
+  </div>
+
+  <div id="listPage" class="page">
+    <div class="toggle-container">
+      <button id="showInstitutesBtn" class="toggle-btn active"><i class="fas fa-building"></i> المعاهد</button>
+      <button id="showTeachersBtn" class="toggle-btn"><i class="fas fa-chalkboard-teacher"></i> الأساتذة</button>
+    </div>
+
+    <!-- فلاتر المعاهد: الحي + السعر فقط -->
+    <div id="instituteFilters" class="filter-section">
+      <select id="neighborhoodFilter" class="filter-select">
+        <!-- الخيارات ستضاف ديناميكياً عبر JavaScript -->
+      </select>
+      <select id="priceFilter" class="filter-select">
+        <option value="all">كل الأسعار</option>
+        <option value="منخفض">أقل من 2000</option>
+        <option value="متوسط">2000 - 4000</option>
+        <option value="مرتفع">أكثر من 4000</option>
+      </select>
+    </div>
+
+    <!-- فلاتر الأساتذة: التخصص فقط -->
+    <div id="teacherFilters" class="filter-section hidden">
+      <select id="specialtyFilter" class="filter-select">
+        <option value="all">كل الاختصاصات</option>
+        <option value="رياضيات">رياضيات</option>
+        <option value="فيزياء">فيزياء</option>
+        <option value="لغة عربية">لغة عربية</option>
+        <option value="إنجليزي">إنجليزي</option>
+      </select>
+    </div>
+
+    <div id="institutesContainer" class="cards-grid single-col"></div>
+    <div id="teachersContainer" class="cards-grid two-col hidden"></div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item active" data-page="home"><i class="fas fa-home"></i><span>الرئيسية</span></div>
+    <div class="nav-item" data-page="list"><i class="fas fa-th-list"></i><span>المعاهد والأساتذة</span></div>
+  </div>
+</div>
+
+<div id="detailModal" class="modal">
+  <div class="modal-content" id="modalContent"></div>
+</div>
+
+<script>
+  (function() {
+    // بيانات المعاهد (كل معهد له مدينة وحي)
+    const institutes = [
+      { id:1, name:'معهد النبراس', location:'تل أبيض', neighborhood:'وسط', price:2500, workingHours:'من 8 صباحاً - 6 مساءً',
+        image:'https://placehold.co/600x400/6C5CE7/white?text=معهد+النبراس', videoUrl:'https://www.w3schools.com/html/mov_bbb.mp4',
+        about:'معهد متخصص في الدورات التقنية واللغات.', teachersList:['أ. خالد العمري', 'أ. سارة القحطاني'], whatsapp:'966500000001' },
+      { id:2, name:'أكاديمية الفارابي', location:'الطبقة', neighborhood:'شمال', price:3800, workingHours:'من 9 صباحاً - 8 مساءً',
+        image:'https://placehold.co/600x400/6C5CE7/white?text=أكاديمية+الفارابي', videoUrl:'https://www.w3schools.com/html/mov_bbb.mp4',
+        about:'أكاديمية رائدة في العلوم الإنسانية.', teachersList:['أ. محمد الشهري', 'أ. ليلى الأحمد'], whatsapp:'966500000002' },
+      { id:3, name:'معهد التميز', location:'الرقة', neighborhood:'حي المطار', price:1200, workingHours:'من 4 عصراً - 10 مساءً',
+        image:'https://placehold.co/600x400/6C5CE7/white?text=معهد+التميز', videoUrl:'https://www.w3schools.com/html/mov_bbb.mp4',
+        about:'دورات مكثفة في البرمجة والتصميم.', teachersList:['أ. عبدالله الحربي', 'أ. نورة السبيعي'], whatsapp:'966500000003' },
+      { id:4, name:'معهد الرواد', location:'الطبقة', neighborhood:'حي الجامعة', price:4500, workingHours:'من 8 صباحاً - 2 ظهراً',
+        image:'https://placehold.co/600x400/6C5CE7/white?text=معهد+الرواد', videoUrl:'https://www.w3schools.com/html/mov_bbb.mp4',
+        about:'إعداد احترافي لاختبارات القبول.', teachersList:['أ. ياسر القحطاني'], whatsapp:'966500000004' },
+      { id:5, name:'معهد الأمل', location:'الرقة', neighborhood:'جنوب', price:1800, workingHours:'من 5 مساءً - 9 مساءً',
+        image:'https://placehold.co/600x400/6C5CE7/white?text=معهد+الأمل', videoUrl:'https://www.w3schools.com/html/mov_bbb.mp4',
+        about:'تقوية دراسية للمراحل الثانوية.', teachersList:['أ. منى العتيبي', 'أ. خالد العمري'], whatsapp:'966500000005' },
+      { id:6, name:'معهد الصفوة', location:'الطبقة', neighborhood:'وسط', price:3200, workingHours:'من 1 ظهراً - 7 مساءً',
+        image:'https://placehold.co/600x400/6C5CE7/white?text=معهد+الصفوة', videoUrl:'https://www.w3schools.com/html/mov_bbb.mp4',
+        about:'لغات وترجمة معتمدة.', teachersList:['أ. سارة القحطاني', 'أ. ليلى الأحمد'], whatsapp:'966500000006' }
+    ];
+
+    // بيانات الأساتذة (لكل أستاذ مدينة فقط)
+    const teachers = [
+      { id:1, name:'أ. خالد العمري', city:'الرقة', specialty:'رياضيات', stages:['ثانوي', 'جامعي'], image:'https://placehold.co/300x300/6C5CE7/white?text=خالد', images:['https://placehold.co/400x300/6C5CE7/white?text=أستاذ+خالد','https://placehold.co/400x300/00CEC9/white?text=شرح'], bio:'خبرة 15 سنة في تدريس الرياضيات.', whatsapp:'966500000010' },
+      { id:2, name:'أ. سارة القحطاني', city:'الطبقة', specialty:'فيزياء', stages:['ثانوي', 'جامعي'], image:'https://placehold.co/300x300/6C5CE7/white?text=سارة', images:['https://placehold.co/400x300/6C5CE7/white?text=معمل+فيزياء','https://placehold.co/400x300/00CEC9/white?text=شرح'], bio:'ماجستير فيزياء نظرية.', whatsapp:'966500000011' },
+      { id:3, name:'أ. محمد الشهري', city:'الرقة', specialty:'لغة عربية', stages:['متوسط', 'ثانوي'], image:'https://placehold.co/300x300/6C5CE7/white?text=محمد', images:['https://placehold.co/400x300/6C5CE7/white?text=أدب','https://placehold.co/400x300/00CEC9/white?text=نحو'], bio:'مدقق لغوي ومحاضر جامعي.', whatsapp:'966500000012' },
+      { id:4, name:'أ. ليلى الأحمد', city:'الطبقة', specialty:'إنجليزي', stages:['ابتدائي', 'متوسط', 'ثانوي'], image:'https://placehold.co/300x300/6C5CE7/white?text=ليلى', images:['https://placehold.co/400x300/6C5CE7/white?text=محادثة','https://placehold.co/400x300/00CEC9/white?text=كتابة'], bio:'حاصلة على IELTS 8.5.', whatsapp:'966500000013' },
+      { id:5, name:'أ. عبدالله الحربي', city:'الرقة', specialty:'رياضيات', stages:['جامعي'], image:'https://placehold.co/300x300/6C5CE7/white?text=عبدالله', images:['https://placehold.co/400x300/6C5CE7/white?text=تفاضل','https://placehold.co/400x300/00CEC9/white?text=هندسة'], bio:'مدرس رياضيات للمراحل المتقدمة.', whatsapp:'966500000014' },
+      { id:6, name:'أ. نورة السبيعي', city:'الطبقة', specialty:'فيزياء', stages:['ثانوي'], image:'https://placehold.co/300x300/6C5CE7/white?text=نورة', images:['https://placehold.co/400x300/6C5CE7/white?text=كهرباء','https://placehold.co/400x300/00CEC9/white?text=مغناطيسية'], bio:'دكتوراه في الفيزياء التطبيقية.', whatsapp:'966500000015' },
+      { id:7, name:'أ. ياسر القحطاني', city:'الرقة', specialty:'إنجليزي', stages:['ثانوي', 'جامعي'], image:'https://placehold.co/300x300/6C5CE7/white?text=ياسر', images:['https://placehold.co/400x300/6C5CE7/white?text=توفل','https://placehold.co/400x300/00CEC9/white?text=محادثة'], bio:'مدرب معتمد من كامبريدج.', whatsapp:'966500000016' },
+      { id:8, name:'أ. منى العتيبي', city:'الطبقة', specialty:'لغة عربية', stages:['ابتدائي', 'متوسط'], image:'https://placehold.co/300x300/6C5CE7/white?text=منى', images:['https://placehold.co/400x300/6C5CE7/white?text=بلاغة','https://placehold.co/400x300/00CEC9/white?text=نصوص'], bio:'خبرة في مناهج الثانوية.', whatsapp:'966500000017' }
+    ];
+
+    // ★ كائن الأحياء حسب المدينة (لتسهيل إضافة مدن وأحياء جديدة)
+    const cityNeighborhoods = {
+      'الرقة': ['شارع تل ابيض', 'دوار النعيم', 'دوار الساعة', 'باب بغداد', 'حي المطار', 'جنوب'],
+      'الطبقة': ['الحي الاول', 'الحي الثاني', 'الحي الثالث', 'حي المقاسم الغربي', 'حي المقاسم الشرقي', 'الشارع الوسط', 'الشارع الرئيسي', 'الشارع الغربي', 'شمال', 'حي الجامعة'],
+      'تل أبيض': ['وسط']
+    };
+
+    // تحديث الإحصائيات
+    const uniqueCities = new Set(institutes.map(i => i.location).concat(teachers.map(t => t.city)));
+    document.getElementById('heroInstituteCount').textContent = institutes.length;
+    document.getElementById('heroTeacherCount').textContent = teachers.length;
+    document.getElementById('heroAreaCount').textContent = uniqueCities.size;
+
+    // عناصر DOM
+    const homePage = document.getElementById('homePage');
+    const listPage = document.getElementById('listPage');
+    const navItems = document.querySelectorAll('.nav-item');
+    const institutesContainer = document.getElementById('institutesContainer');
+    const teachersContainer = document.getElementById('teachersContainer');
+    const instituteFiltersDiv = document.getElementById('instituteFilters');
+    const teacherFiltersDiv = document.getElementById('teacherFilters');
+    const showInstitutesBtn = document.getElementById('showInstitutesBtn');
+    const showTeachersBtn = document.getElementById('showTeachersBtn');
+    const modal = document.getElementById('detailModal');
+    const modalContent = document.getElementById('modalContent');
+    const globalCityFilter = document.getElementById('globalCityFilter');
+    const neighborhoodFilter = document.getElementById('neighborhoodFilter');
+    const priceFilter = document.getElementById('priceFilter');
+    const specialtyFilter = document.getElementById('specialtyFilter');
+
+    // ★ دالة تحديث خيارات الحي بناءً على المدينة المختارة
+    function updateNeighborhoodFilter(city) {
+      const defaultOption = '<option value="all">جميع الأحياء</option>';
+      const neighborhoods = cityNeighborhoods[city] || [];
+      const options = neighborhoods.map(n => `<option value="${n}">${n}</option>`).join('');
+      neighborhoodFilter.innerHTML = defaultOption + options;
+      neighborhoodFilter.value = 'all'; // إعادة تعيين إلى "جميع الأحياء"
+    }
+
+    // دوال العرض
+    function renderInstitutes() {
+      const city = globalCityFilter.value;
+      const neigh = neighborhoodFilter.value;
+      const price = priceFilter.value;
+      let filtered = institutes.filter(i => {
+        if (city !== 'all' && i.location !== city) return false;
+        if (neigh !== 'all' && i.neighborhood !== neigh) return false;
+        if (price === 'منخفض' && i.price >= 2000) return false;
+        if (price === 'متوسط' && (i.price < 2000 || i.price > 4000)) return false;
+        if (price === 'مرتفع' && i.price <= 4000) return false;
+        return true;
+      });
+      institutesContainer.innerHTML = filtered.map(i => `
+        <div class="card">
+          <img src="${i.image}" class="card-img" alt="${i.name}">
+          <div class="card-body">
+            <div class="card-title">${i.name}</div>
+            <button class="detail-btn" data-type="institute" data-id="${i.id}"><i class="fas fa-info-circle"></i> تفاصيل</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderTeachers() {
+      const city = globalCityFilter.value;
+      const spec = specialtyFilter.value;
+      let filtered = teachers.filter(t => {
+        if (city !== 'all' && t.city !== city) return false;
+        if (spec !== 'all' && t.specialty !== spec) return false;
+        return true;
+      });
+      teachersContainer.innerHTML = filtered.map(t => `
+        <div class="card teacher-card">
+          <img src="${t.image}" class="card-img" alt="${t.name}">
+          <div class="card-body">
+            <div class="card-title">${t.name}</div>
+            <div class="card-sub"><i class="fas fa-briefcase"></i> ${t.specialty}</div>
+            <button class="detail-btn" data-type="teacher" data-id="${t.id}"><i class="fas fa-info-circle"></i> تفاصيل</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // أحداث الفلاتر
+    globalCityFilter.addEventListener('change', function() {
+      if (listPage.classList.contains('active')) {
+        updateNeighborhoodFilter(this.value);  // تحديث قائمة الأحياء
+        if (showInstitutesBtn.classList.contains('active')) renderInstitutes();
+        else renderTeachers();
+      }
+    });
+    neighborhoodFilter.addEventListener('change', renderInstitutes);
+    priceFilter.addEventListener('change', renderInstitutes);
+    specialtyFilter.addEventListener('change', renderTeachers);
+
+    // التنقل بين الصفحات والأقسام
+    navItems.forEach(item => {
+      item.addEventListener('click', function() {
+        const page = this.dataset.page;
+        navItems.forEach(n => n.classList.remove('active'));
+        this.classList.add('active');
+        if (page === 'home') {
+          homePage.classList.add('active');
+          listPage.classList.remove('active');
+        } else {
+          listPage.classList.add('active');
+          homePage.classList.remove('active');
+          updateNeighborhoodFilter(globalCityFilter.value); // مزامنة الأحياء
+          if (showInstitutesBtn.classList.contains('active')) renderInstitutes();
+          else renderTeachers();
+        }
+      });
+    });
+
+    showInstitutesBtn.addEventListener('click', ()=>{
+      showInstitutesBtn.classList.add('active');
+      showTeachersBtn.classList.remove('active');
+      instituteFiltersDiv.classList.remove('hidden');
+      teacherFiltersDiv.classList.add('hidden');
+      teachersContainer.classList.add('hidden');
+      institutesContainer.classList.remove('hidden');
+      renderInstitutes();
+    });
+
+    showTeachersBtn.addEventListener('click', ()=>{
+      showTeachersBtn.classList.add('active');
+      showInstitutesBtn.classList.remove('active');
+      teacherFiltersDiv.classList.remove('hidden');
+      instituteFiltersDiv.classList.add('hidden');
+      institutesContainer.classList.add('hidden');
+      teachersContainer.classList.remove('hidden');
+      renderTeachers();
+    });
+
+    // النافذة المنبثقة
+    document.body.addEventListener('click', function(e) {
+      if (e.target.closest('.detail-btn')) {
+        const btn = e.target.closest('.detail-btn');
+        const type = btn.dataset.type;
+        const id = parseInt(btn.dataset.id);
+        openModal(type, id);
+      }
+    });
+
+    function openModal(type, id) {
+      if (type === 'institute') {
+        const i = institutes.find(x => x.id === id);
+        if (!i) return;
+        modalContent.innerHTML = `
+          <div class="media-row">
+            <img src="${i.image}" alt="${i.name}">
+            <video controls><source src="${i.videoUrl}" type="video/mp4">متصفحك لا يدعم الفيديو.</video>
+          </div>
+          <h3 style="margin:15px 0 5px; text-align:center;">${i.name}</h3>
+          <div style="background:#f8f9fe; border-radius:16px; padding:14px; margin:10px 0;">
+            <p><i class="fas fa-info-circle" style="color:#6C5CE7;"></i> <strong>عن المعهد:</strong> ${i.about}</p>
+          </div>
+          <div style="background:#f8f9fe; border-radius:16px; padding:14px; margin:10px 0;">
+            <p style="margin-top:8px;"><i class="fas fa-money-bill-wave" style="color:#6C5CE7;"></i> <strong>التكلفة:</strong> ${i.price} ريال</p>
+          </div>
+          <div class="working-hours"><i class="fas fa-calendar-alt" style="color:#6C5CE7; font-size:1.3rem;"></i><span><strong>أوقات الدوام:</strong> ${i.workingHours}</span></div>
+          <div class="working-hours"><p style="margin:10px 0;"><i class="fas fa-map-marker-alt" style="color:#6C5CE7;"></i> <strong>الموقع:</strong> ${i.location} - ${i.neighborhood}</p></div>
+          <div><strong><i class="fas fa-users" style="color:#6C5CE7;"></i> الأساتذة في هذا المعهد:</strong><div class="teacher-tags">${i.teachersList.map(t => `<span class="teacher-tag">${t}</span>`).join('')}</div></div>
+          <a class="whatsapp-btn" href="https://wa.me/${i.whatsapp}" target="_blank"><i class="fab fa-whatsapp"></i> تواصل واتساب وحجز مقعد</a>
+          <button class="cancel-bottom-btn" onclick="document.getElementById('detailModal').classList.remove('active')"><i class="fas fa-times"></i> إغلاق</button>
+        `;
+      } else {
+        const t = teachers.find(x => x.id === id);
+        if (!t) return;
+        modalContent.innerHTML = `
+          <div style="display:flex; gap:10px; margin:10px 0 15px;">${t.images.map(img => `<img src="${img}" style="width:48%; border-radius:20px; height:140px; object-fit:cover;">`).join('')}</div>
+          <h3>${t.name}</h3>
+          <p style="color:#6C5CE7; margin:5px 0;"><i class="fas fa-briefcase"></i> ${t.specialty}</p>
+          <div style="background:#f8f9fe; border-radius:16px; padding:14px; margin:10px 0;"><p><i class="fas fa-quote-right" style="color:#6C5CE7;"></i> <strong>عن المسيرة:</strong> ${t.bio}</p></div>
+          <div><strong><i class="fas fa-layer-group" style="color:#6C5CE7;"></i> المراحل الدراسية:</strong><div class="stages-tags">${t.stages.map(s => `<span class="stage-tag">${s}</span>`).join('')}</div></div>
+          <a class="whatsapp-btn" href="https://wa.me/${t.whatsapp}" target="_blank"><i class="fab fa-whatsapp"></i> تواصل واتساب</a>
+          <button class="cancel-bottom-btn" onclick="document.getElementById('detailModal').classList.remove('active')"><i class="fas fa-times"></i> إغلاق</button>
+        `;
+      }
+      modal.classList.add('active');
+      const content = modal.querySelector('.modal-content');
+      let startY = 0;
+      content.addEventListener('touchstart', e => startY = e.touches[0].clientY);
+      content.addEventListener('touchmove', e => {
+        if (e.touches[0].clientY - startY > 50 && content.scrollTop <= 0) modal.classList.remove('active');
+      });
+    }
+
+    modal.addEventListener('click', function(e) { if (e.target === modal) modal.classList.remove('active'); });
+
+    // ★ تهيئة فلتر الحي بالمدينة الافتراضية (الرقة)
+    updateNeighborhoodFilter(globalCityFilter.value);
+    // عرض أولي
+    renderInstitutes();
+  })();
+</script>
+
+</body>
+</html>
