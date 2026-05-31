@@ -119,6 +119,79 @@
       box-shadow: 0 4px 10px rgba(108,92,231,0.25);
     }
 
+    /* معرض الصور الجديد */
+    .gallery-container {
+      background: white;
+      margin-bottom: 16px;
+    }
+    .main-image {
+      width: 100%;
+      height: 280px;
+      border-radius: 24px;
+      overflow: hidden;
+      background: #f0f5f2;
+      position: relative;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .main-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .main-image-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #eef7f2, #d4e6de);
+      color: #6C5CE7;
+      font-size: 48px;
+      gap: 12px;
+    }
+    .main-image-placeholder span {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .thumbnail-gallery {
+      display: flex;
+      gap: 12px;
+      padding: 16px 0;
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+    .thumbnail {
+      width: 80px;
+      height: 80px;
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 3px solid transparent;
+      transition: all 0.2s;
+      background: #f0f3f0;
+      flex-shrink: 0;
+    }
+    .thumbnail.active {
+      border-color: #6C5CE7;
+      transform: scale(0.95);
+    }
+    .thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .thumbnail-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #e0eae4;
+      color: #6C5CE7;
+      font-size: 24px;
+    }
+
     .modal {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.4); backdrop-filter: blur(6px); z-index: 100;
@@ -209,11 +282,8 @@
       <button id="showTeachersBtn" class="toggle-btn"><i class="fas fa-chalkboard-teacher"></i> الأساتذة</button>
     </div>
 
-    <!-- فلاتر المعاهد: الحي + السعر فقط -->
     <div id="instituteFilters" class="filter-section">
-      <select id="neighborhoodFilter" class="filter-select">
-        <!-- الخيارات ستضاف ديناميكياً عبر JavaScript -->
-      </select>
+      <select id="neighborhoodFilter" class="filter-select"></select>
       <select id="priceFilter" class="filter-select">
         <option value="all">كل الأسعار</option>
         <option value="منخفض">أقل من 2000</option>
@@ -222,7 +292,6 @@
       </select>
     </div>
 
-    <!-- فلاتر الأساتذة: التخصص فقط -->
     <div id="teacherFilters" class="filter-section hidden">
       <select id="specialtyFilter" class="filter-select">
         <option value="all">كل الاختصاصات</option>
@@ -249,41 +318,202 @@
 
 <script>
   (function() {
-    // بيانات المعاهد (كل معهد له مدينة وحي)
+    // بيانات المعاهد مع إضافة معرض صور لكل معهد
     const institutes = [
       { id:1, name:'معهد النبراس', location:'تل أبيض', neighborhood:'وسط', price:2500, workingHours:'من 8 صباحاً - 6 مساءً',
-        image:'https://placehold.co/600x400/6C5CE7/white?text=معهد+النبراس', videoUrl:'https://www.w3schools.com/html/mov_bbb.mp4',
+        image:'https://placehold.co/600x400/6C5CE7/white?text=معهد+النبراس',
+        gallery: [
+          'https://placehold.co/800x600/6C5CE7/white?text=صالة+الاستقبال',
+          'https://placehold.co/800x600/00CEC9/white?text=قاعة+المحاضرات',
+          'https://placehold.co/800x600/FF6B6B/white?text=مكتبة'
+        ],
+        galleryThumbs: [
+          'https://placehold.co/100x100/6C5CE7/white?text=استقبال',
+          'https://placehold.co/100x100/00CEC9/white?text=قاعة',
+          'https://placehold.co/100x100/FF6B6B/white?text=مكتبة'
+        ],
+        videoUrl:'https://www.w3schools.com/html/mov_bbb.mp4',
         about:'معهد متخصص في الدورات التقنية واللغات.', teachersList:['أ. خالد العمري', 'أ. سارة القحطاني'], whatsapp:'966500000001' },
       { id:2, name:'أكاديمية الفارابي', location:'الطبقة', neighborhood:'شمال', price:3800, workingHours:'من 9 صباحاً - 8 مساءً',
-        image:'https://placehold.co/600x400/6C5CE7/white?text=أكاديمية+الفارابي', videoUrl:'https://www.w3schools.com/html/mov_bbb.mp4',
+        image:'https://placehold.co/600x400/6C5CE7/white?text=أكاديمية+الفارابي',
+        gallery: [
+          'https://placehold.co/800x600/6C5CE7/white?text=مدخل+الأكاديمية',
+          'https://placehold.co/800x600/00CEC9/white?text=قاعة+الندوات',
+          'https://placehold.co/800x600/FF6B6B/white?text=معمل+الحاسوب'
+        ],
+        galleryThumbs: [
+          'https://placehold.co/100x100/6C5CE7/white?text=مدخل',
+          'https://placehold.co/100x100/00CEC9/white?text=ندوات',
+          'https://placehold.co/100x100/FF6B6B/white?text=حاسوب'
+        ],
+        videoUrl:'https://www.w3schools.com/html/mov_bbb.mp4',
         about:'أكاديمية رائدة في العلوم الإنسانية.', teachersList:['أ. محمد الشهري', 'أ. ليلى الأحمد'], whatsapp:'966500000002' },
       { id:3, name:'معهد التميز', location:'الرقة', neighborhood:'حي المطار', price:1200, workingHours:'من 4 عصراً - 10 مساءً',
-        image:'https://placehold.co/600x400/6C5CE7/white?text=معهد+التميز', videoUrl:'https://www.w3schools.com/html/mov_bbb.mp4',
+        image:'https://placehold.co/600x400/6C5CE7/white?text=معهد+التميز',
+        gallery: [
+          'https://placehold.co/800x600/6C5CE7/white?text=استقبال+التميز',
+          'https://placehold.co/800x600/00CEC9/white?text=قاعة+البرمجة',
+          'https://placehold.co/800x600/FF6B6B/white?text=مقهى+الطلاب'
+        ],
+        galleryThumbs: [
+          'https://placehold.co/100x100/6C5CE7/white?text=استقبال',
+          'https://placehold.co/100x100/00CEC9/white?text=برمجة',
+          'https://placehold.co/100x100/FF6B6B/white?text=مقهى'
+        ],
+        videoUrl:'https://www.w3schools.com/html/mov_bbb.mp4',
         about:'دورات مكثفة في البرمجة والتصميم.', teachersList:['أ. عبدالله الحربي', 'أ. نورة السبيعي'], whatsapp:'966500000003' },
       { id:4, name:'معهد الرواد', location:'الطبقة', neighborhood:'حي الجامعة', price:4500, workingHours:'من 8 صباحاً - 2 ظهراً',
-        image:'https://placehold.co/600x400/6C5CE7/white?text=معهد+الرواد', videoUrl:'https://www.w3schools.com/html/mov_bbb.mp4',
+        image:'https://placehold.co/600x400/6C5CE7/white?text=معهد+الرواد',
+        gallery: [
+          'https://placehold.co/800x600/6C5CE7/white?text=بهو+الرواد',
+          'https://placehold.co/800x600/00CEC9/white?text=قاعة+الاختبارات',
+          'https://placehold.co/800x600/FF6B6B/white?text=مركز+المصادر'
+        ],
+        galleryThumbs: [
+          'https://placehold.co/100x100/6C5CE7/white?text=بهو',
+          'https://placehold.co/100x100/00CEC9/white?text=اختبارات',
+          'https://placehold.co/100x100/FF6B6B/white?text=مصادر'
+        ],
+        videoUrl:'https://www.w3schools.com/html/mov_bbb.mp4',
         about:'إعداد احترافي لاختبارات القبول.', teachersList:['أ. ياسر القحطاني'], whatsapp:'966500000004' },
       { id:5, name:'معهد الأمل', location:'الرقة', neighborhood:'جنوب', price:1800, workingHours:'من 5 مساءً - 9 مساءً',
-        image:'https://placehold.co/600x400/6C5CE7/white?text=معهد+الأمل', videoUrl:'https://www.w3schools.com/html/mov_bbb.mp4',
+        image:'https://placehold.co/600x400/6C5CE7/white?text=معهد+الأمل',
+        gallery: [
+          'https://placehold.co/800x600/6C5CE7/white?text=ردهة+الأمل',
+          'https://placehold.co/800x600/00CEC9/white?text=قاعة+التقوية',
+          'https://placehold.co/800x600/FF6B6B/white?text=ساحة+الاستراحة'
+        ],
+        galleryThumbs: [
+          'https://placehold.co/100x100/6C5CE7/white?text=ردهة',
+          'https://placehold.co/100x100/00CEC9/white?text=تقوية',
+          'https://placehold.co/100x100/FF6B6B/white?text=استراحة'
+        ],
+        videoUrl:'https://www.w3schools.com/html/mov_bbb.mp4',
         about:'تقوية دراسية للمراحل الثانوية.', teachersList:['أ. منى العتيبي', 'أ. خالد العمري'], whatsapp:'966500000005' },
       { id:6, name:'معهد الصفوة', location:'الطبقة', neighborhood:'وسط', price:3200, workingHours:'من 1 ظهراً - 7 مساءً',
-        image:'https://placehold.co/600x400/6C5CE7/white?text=معهد+الصفوة', videoUrl:'https://www.w3schools.com/html/mov_bbb.mp4',
+        image:'https://placehold.co/600x400/6C5CE7/white?text=معهد+الصفوة',
+        gallery: [
+          'https://placehold.co/800x600/6C5CE7/white?text=مدخل+الصفوة',
+          'https://placehold.co/800x600/00CEC9/white?text=قاعة+اللغات',
+          'https://placehold.co/800x600/FF6B6B/white?text=مختبر+الترجمة'
+        ],
+        galleryThumbs: [
+          'https://placehold.co/100x100/6C5CE7/white?text=مدخل',
+          'https://placehold.co/100x100/00CEC9/white?text=لغات',
+          'https://placehold.co/100x100/FF6B6B/white?text=ترجمة'
+        ],
+        videoUrl:'https://www.w3schools.com/html/mov_bbb.mp4',
         about:'لغات وترجمة معتمدة.', teachersList:['أ. سارة القحطاني', 'أ. ليلى الأحمد'], whatsapp:'966500000006' }
     ];
 
-    // بيانات الأساتذة (لكل أستاذ مدينة فقط)
+    // بيانات الأساتذة مع إضافة معرض صور لكل أستاذ
     const teachers = [
-      { id:1, name:'أ. خالد العمري', city:'الرقة', specialty:'رياضيات', stages:['ثانوي', 'جامعي'], image:'https://placehold.co/300x300/6C5CE7/white?text=خالد', images:['https://placehold.co/400x300/6C5CE7/white?text=أستاذ+خالد','https://placehold.co/400x300/00CEC9/white?text=شرح'], bio:'خبرة 15 سنة في تدريس الرياضيات.', whatsapp:'966500000010' },
-      { id:2, name:'أ. سارة القحطاني', city:'الطبقة', specialty:'فيزياء', stages:['ثانوي', 'جامعي'], image:'https://placehold.co/300x300/6C5CE7/white?text=سارة', images:['https://placehold.co/400x300/6C5CE7/white?text=معمل+فيزياء','https://placehold.co/400x300/00CEC9/white?text=شرح'], bio:'ماجستير فيزياء نظرية.', whatsapp:'966500000011' },
-      { id:3, name:'أ. محمد الشهري', city:'الرقة', specialty:'لغة عربية', stages:['متوسط', 'ثانوي'], image:'https://placehold.co/300x300/6C5CE7/white?text=محمد', images:['https://placehold.co/400x300/6C5CE7/white?text=أدب','https://placehold.co/400x300/00CEC9/white?text=نحو'], bio:'مدقق لغوي ومحاضر جامعي.', whatsapp:'966500000012' },
-      { id:4, name:'أ. ليلى الأحمد', city:'الطبقة', specialty:'إنجليزي', stages:['ابتدائي', 'متوسط', 'ثانوي'], image:'https://placehold.co/300x300/6C5CE7/white?text=ليلى', images:['https://placehold.co/400x300/6C5CE7/white?text=محادثة','https://placehold.co/400x300/00CEC9/white?text=كتابة'], bio:'حاصلة على IELTS 8.5.', whatsapp:'966500000013' },
-      { id:5, name:'أ. عبدالله الحربي', city:'الرقة', specialty:'رياضيات', stages:['جامعي'], image:'https://placehold.co/300x300/6C5CE7/white?text=عبدالله', images:['https://placehold.co/400x300/6C5CE7/white?text=تفاضل','https://placehold.co/400x300/00CEC9/white?text=هندسة'], bio:'مدرس رياضيات للمراحل المتقدمة.', whatsapp:'966500000014' },
-      { id:6, name:'أ. نورة السبيعي', city:'الطبقة', specialty:'فيزياء', stages:['ثانوي'], image:'https://placehold.co/300x300/6C5CE7/white?text=نورة', images:['https://placehold.co/400x300/6C5CE7/white?text=كهرباء','https://placehold.co/400x300/00CEC9/white?text=مغناطيسية'], bio:'دكتوراه في الفيزياء التطبيقية.', whatsapp:'966500000015' },
-      { id:7, name:'أ. ياسر القحطاني', city:'الرقة', specialty:'إنجليزي', stages:['ثانوي', 'جامعي'], image:'https://placehold.co/300x300/6C5CE7/white?text=ياسر', images:['https://placehold.co/400x300/6C5CE7/white?text=توفل','https://placehold.co/400x300/00CEC9/white?text=محادثة'], bio:'مدرب معتمد من كامبريدج.', whatsapp:'966500000016' },
-      { id:8, name:'أ. منى العتيبي', city:'الطبقة', specialty:'لغة عربية', stages:['ابتدائي', 'متوسط'], image:'https://placehold.co/300x300/6C5CE7/white?text=منى', images:['https://placehold.co/400x300/6C5CE7/white?text=بلاغة','https://placehold.co/400x300/00CEC9/white?text=نصوص'], bio:'خبرة في مناهج الثانوية.', whatsapp:'966500000017' }
+      { id:1, name:'أ. خالد العمري', city:'الرقة', specialty:'رياضيات', stages:['ثانوي', 'جامعي'], 
+        image:'https://placehold.co/300x300/6C5CE7/white?text=خالد',
+        gallery: [
+          'https://placehold.co/800x600/6C5CE7/white?text=شرح+رياضيات',
+          'https://placehold.co/800x600/00CEC9/white?text=حصة+تفاضل',
+          'https://placehold.co/800x600/FF6B6B/white?text=مراجعة+نهائية'
+        ],
+        galleryThumbs: [
+          'https://placehold.co/100x100/6C5CE7/white?text=شرح',
+          'https://placehold.co/100x100/00CEC9/white?text=حصة',
+          'https://placehold.co/100x100/FF6B6B/white?text=مراجعة'
+        ],
+        bio:'خبرة 15 سنة في تدريس الرياضيات.', whatsapp:'966500000010' },
+      { id:2, name:'أ. سارة القحطاني', city:'الطبقة', specialty:'فيزياء', stages:['ثانوي', 'جامعي'],
+        image:'https://placehold.co/300x300/6C5CE7/white?text=سارة',
+        gallery: [
+          'https://placehold.co/800x600/6C5CE7/white?text=معمل+فيزياء',
+          'https://placehold.co/800x600/00CEC9/white?text=تجارب+كهرباء',
+          'https://placehold.co/800x600/FF6B6B/white?text=محاضرة+نظرية'
+        ],
+        galleryThumbs: [
+          'https://placehold.co/100x100/6C5CE7/white?text=معمل',
+          'https://placehold.co/100x100/00CEC9/white?text=تجارب',
+          'https://placehold.co/100x100/FF6B6B/white?text=محاضرة'
+        ],
+        bio:'ماجستير فيزياء نظرية.', whatsapp:'966500000011' },
+      { id:3, name:'أ. محمد الشهري', city:'الرقة', specialty:'لغة عربية', stages:['متوسط', 'ثانوي'],
+        image:'https://placehold.co/300x300/6C5CE7/white?text=محمد',
+        gallery: [
+          'https://placehold.co/800x600/6C5CE7/white?text=شرح+نحو',
+          'https://placehold.co/800x600/00CEC9/white?text=تحليل+نصوص',
+          'https://placehold.co/800x600/FF6B6B/white?text=بلاغة+وقراءات'
+        ],
+        galleryThumbs: [
+          'https://placehold.co/100x100/6C5CE7/white?text=نحو',
+          'https://placehold.co/100x100/00CEC9/white?text=نصوص',
+          'https://placehold.co/100x100/FF6B6B/white?text=بلاغة'
+        ],
+        bio:'مدقق لغوي ومحاضر جامعي.', whatsapp:'966500000012' },
+      { id:4, name:'أ. ليلى الأحمد', city:'الطبقة', specialty:'إنجليزي', stages:['ابتدائي', 'متوسط', 'ثانوي'],
+        image:'https://placehold.co/300x300/6C5CE7/white?text=ليلى',
+        gallery: [
+          'https://placehold.co/800x600/6C5CE7/white?text=محادثة+إنجليزي',
+          'https://placehold.co/800x600/00CEC9/white?text=تدريب+استماع',
+          'https://placehold.co/800x600/FF6B6B/white?text=كتابة+وقواعد'
+        ],
+        galleryThumbs: [
+          'https://placehold.co/100x100/6C5CE7/white?text=محادثة',
+          'https://placehold.co/100x100/00CEC9/white?text=استماع',
+          'https://placehold.co/100x100/FF6B6B/white?text=قواعد'
+        ],
+        bio:'حاصلة على IELTS 8.5.', whatsapp:'966500000013' },
+      { id:5, name:'أ. عبدالله الحربي', city:'الرقة', specialty:'رياضيات', stages:['جامعي'],
+        image:'https://placehold.co/300x300/6C5CE7/white?text=عبدالله',
+        gallery: [
+          'https://placehold.co/800x600/6C5CE7/white?text=تفاضل+وتكامل',
+          'https://placehold.co/800x600/00CEC9/white?text=هندسة+تحليلية',
+          'https://placehold.co/800x600/FF6B6B/white?text=جبر+خطي'
+        ],
+        galleryThumbs: [
+          'https://placehold.co/100x100/6C5CE7/white?text=تفاضل',
+          'https://placehold.co/100x100/00CEC9/white?text=هندسة',
+          'https://placehold.co/100x100/FF6B6B/white?text=جبر'
+        ],
+        bio:'مدرس رياضيات للمراحل المتقدمة.', whatsapp:'966500000014' },
+      { id:6, name:'أ. نورة السبيعي', city:'الطبقة', specialty:'فيزياء', stages:['ثانوي'],
+        image:'https://placehold.co/300x300/6C5CE7/white?text=نورة',
+        gallery: [
+          'https://placehold.co/800x600/6C5CE7/white?text=كهرباء+ومغناطيس',
+          'https://placehold.co/800x600/00CEC9/white?text=فيزياء+حديثة',
+          'https://placehold.co/800x600/FF6B6B/white?text=ميكانيكا+كلاسيكية'
+        ],
+        galleryThumbs: [
+          'https://placehold.co/100x100/6C5CE7/white?text=كهرباء',
+          'https://placehold.co/100x100/00CEC9/white?text=حديثة',
+          'https://placehold.co/100x100/FF6B6B/white?text=ميكانيكا'
+        ],
+        bio:'دكتوراه في الفيزياء التطبيقية.', whatsapp:'966500000015' },
+      { id:7, name:'أ. ياسر القحطاني', city:'الرقة', specialty:'إنجليزي', stages:['ثانوي', 'جامعي'],
+        image:'https://placehold.co/300x300/6C5CE7/white?text=ياسر',
+        gallery: [
+          'https://placehold.co/800x600/6C5CE7/white?text=تحضير+توفل',
+          'https://placehold.co/800x600/00CEC9/white?text=محادثة+متقدمة',
+          'https://placehold.co/800x600/FF6B6B/white?text=قواعد+متقدمة'
+        ],
+        galleryThumbs: [
+          'https://placehold.co/100x100/6C5CE7/white?text=توفل',
+          'https://placehold.co/100x100/00CEC9/white?text=محادثة',
+          'https://placehold.co/100x100/FF6B6B/white?text=قواعد'
+        ],
+        bio:'مدرب معتمد من كامبريدج.', whatsapp:'966500000016' },
+      { id:8, name:'أ. منى العتيبي', city:'الطبقة', specialty:'لغة عربية', stages:['ابتدائي', 'متوسط'],
+        image:'https://placehold.co/300x300/6C5CE7/white?text=منى',
+        gallery: [
+          'https://placehold.co/800x600/6C5CE7/white?text=بلاغة+وعروض',
+          'https://placehold.co/800x600/00CEC9/white?text=تحليل+نصوص+أدبية',
+          'https://placehold.co/800x600/FF6B6B/white?text=قواعد+لغة'
+        ],
+        galleryThumbs: [
+          'https://placehold.co/100x100/6C5CE7/white?text=بلاغة',
+          'https://placehold.co/100x100/00CEC9/white?text=نصوص',
+          'https://placehold.co/100x100/FF6B6B/white?text=قواعد'
+        ],
+        bio:'خبرة في مناهج الثانوية.', whatsapp:'966500000017' }
     ];
 
-    // ★ كائن الأحياء حسب المدينة (لتسهيل إضافة مدن وأحياء جديدة)
     const cityNeighborhoods = {
       'الرقة': ['شارع تل ابيض', 'دوار النعيم', 'دوار الساعة', 'باب بغداد', 'حي المطار', 'جنوب'],
       'الطبقة': ['الحي الاول', 'الحي الثاني', 'الحي الثالث', 'حي المقاسم الغربي', 'حي المقاسم الشرقي', 'الشارع الوسط', 'الشارع الرئيسي', 'الشارع الغربي', 'شمال', 'حي الجامعة'],
@@ -313,16 +543,119 @@
     const priceFilter = document.getElementById('priceFilter');
     const specialtyFilter = document.getElementById('specialtyFilter');
 
-    // ★ دالة تحديث خيارات الحي بناءً على المدينة المختارة
+    let currentItem = null;
+    let currentImageIndex = 0;
+
+    // دوال معرض الصور
+    function displayMainImage(index, item, gallery) {
+      const mainContainer = document.querySelector('#modalContent .main-image');
+      if (!mainContainer || !gallery || !gallery[index]) return;
+      
+      const imageUrl = gallery[index];
+      mainContainer.innerHTML = `
+        <img src="${imageUrl}" alt="صورة ${index + 1}" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'main-image-placeholder\'><i class=\'fas fa-image\'></i><span>صورة ${index + 1}</span></div>';">
+      `;
+      
+      document.querySelectorAll('#modalContent .thumbnail').forEach((thumb, i) => {
+        thumb.classList.toggle('active', i === index);
+      });
+    }
+    
+    function buildThumbnails(item, gallery, thumbs) {
+      const galleryContainer = document.querySelector('#modalContent .thumbnail-gallery');
+      if (!galleryContainer || !gallery) return;
+      
+      const thumbUrls = thumbs || gallery;
+      
+      galleryContainer.innerHTML = gallery.map((_, idx) => {
+        const thumbUrl = thumbUrls[idx];
+        return `
+          <div class="thumbnail ${idx === 0 ? 'active' : ''}" onclick="window.switchImageInModal(${idx})">
+            <img src="${thumbUrl}" alt="صورة مصغرة" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'thumbnail-placeholder\'><i class=\'fas fa-image\'></i></div>';">
+          </div>
+        `;
+      }).join('');
+    }
+
+    // دالة عامة لفتح التفاصيل مع معرض الصور
+    function openModal(type, id) {
+      const item = type === 'institute' ? institutes.find(x => x.id === id) : teachers.find(x => x.id === id);
+      if (!item) return;
+      currentItem = item;
+      currentImageIndex = 0;
+      
+      const gallery = item.gallery || [item.image];
+      const thumbs = item.galleryThumbs || gallery;
+      
+      if (type === 'institute') {
+        modalContent.innerHTML = `
+          <div class="gallery-container">
+            <div class="main-image" id="mainImage">
+              <div class="main-image-placeholder">
+                <i class="fas fa-image"></i>
+                <span>تحميل الصورة...</span>
+              </div>
+            </div>
+            <div class="thumbnail-gallery" id="thumbnailGallery"></div>
+          </div>
+          <h3 style="margin:15px 0 5px; text-align:center;">${item.name}</h3>
+          <div style="background:#f8f9fe; border-radius:16px; padding:14px; margin:10px 0;">
+            <p><i class="fas fa-info-circle" style="color:#6C5CE7;"></i> <strong>عن المعهد:</strong> ${item.about}</p>
+          </div>
+          <div style="background:#f8f9fe; border-radius:16px; padding:14px; margin:10px 0;">
+            <p><i class="fas fa-money-bill-wave" style="color:#6C5CE7;"></i> <strong>التكلفة:</strong> ${item.price} دولار</p>
+          </div>
+          <div class="working-hours"><i class="fas fa-calendar-alt" style="color:#6C5CE7; font-size:1.3rem;"></i><span><strong>أوقات الدوام:</strong> ${item.workingHours}</span></div>
+          <div class="working-hours"><p><i class="fas fa-map-marker-alt" style="color:#6C5CE7;"></i> <strong>الموقع:</strong> ${item.location} - ${item.neighborhood}</p></div>
+          <div><strong><i class="fas fa-users" style="color:#6C5CE7;"></i> الأساتذة في هذا المعهد:</strong><div class="teacher-tags">${item.teachersList.map(t => `<span class="teacher-tag">${t}</span>`).join('')}</div></div>
+          <a class="whatsapp-btn" href="https://wa.me/${item.whatsapp}" target="_blank"><i class="fab fa-whatsapp"></i> تواصل واتساب وحجز مقعد</a>
+          <button class="cancel-bottom-btn" onclick="document.getElementById('detailModal').classList.remove('active')"><i class="fas fa-times"></i> إغلاق</button>
+        `;
+      } else {
+        modalContent.innerHTML = `
+          <div class="gallery-container">
+            <div class="main-image" id="mainImage">
+              <div class="main-image-placeholder">
+                <i class="fas fa-image"></i>
+                <span>تحميل الصورة...</span>
+              </div>
+            </div>
+            <div class="thumbnail-gallery" id="thumbnailGallery"></div>
+          </div>
+          <h3 style="margin:15px 0 5px;">${item.name}</h3>
+          <p style="color:#6C5CE7; margin:5px 0;"><i class="fas fa-briefcase"></i> ${item.specialty}</p>
+          <div style="background:#f8f9fe; border-radius:16px; padding:14px; margin:10px 0;"><p><i class="fas fa-quote-right" style="color:#6C5CE7;"></i> <strong>عن المسيرة:</strong> ${item.bio}</p></div>
+          <div><strong><i class="fas fa-layer-group" style="color:#6C5CE7;"></i> المراحل الدراسية:</strong><div class="stages-tags">${item.stages.map(s => `<span class="stage-tag">${s}</span>`).join('')}</div></div>
+          <a class="whatsapp-btn" href="https://wa.me/${item.whatsapp}" target="_blank"><i class="fab fa-whatsapp"></i> تواصل واتساب</a>
+          <button class="cancel-bottom-btn" onclick="document.getElementById('detailModal').classList.remove('active')"><i class="fas fa-times"></i> إغلاق</button>
+        `;
+      }
+      
+      // بناء معرض الصور بعد إضافة المحتوى
+      setTimeout(() => {
+        buildThumbnails(item, gallery, thumbs);
+        displayMainImage(0, item, gallery);
+      }, 50);
+      
+      modal.classList.add('active');
+    }
+
+    // دالة تبديل الصورة (تعريف عام)
+    window.switchImageInModal = function(index) {
+      if (!currentItem) return;
+      currentImageIndex = index;
+      const gallery = currentItem.gallery || [currentItem.image];
+      displayMainImage(index, currentItem, gallery);
+    };
+
     function updateNeighborhoodFilter(city) {
       const defaultOption = '<option value="all">جميع الأحياء</option>';
       const neighborhoods = cityNeighborhoods[city] || [];
       const options = neighborhoods.map(n => `<option value="${n}">${n}</option>`).join('');
       neighborhoodFilter.innerHTML = defaultOption + options;
-      neighborhoodFilter.value = 'all'; // إعادة تعيين إلى "جميع الأحياء"
+      neighborhoodFilter.value = 'all';
     }
 
-    // دوال العرض
     function renderInstitutes() {
       const city = globalCityFilter.value;
       const neigh = neighborhoodFilter.value;
@@ -337,7 +670,7 @@
       });
       institutesContainer.innerHTML = filtered.map(i => `
         <div class="card">
-          <img src="${i.image}" class="card-img" alt="${i.name}">
+          <img src="${i.image}" class="card-img" alt="${i.name}" loading="lazy">
           <div class="card-body">
             <div class="card-title">${i.name}</div>
             <button class="detail-btn" data-type="institute" data-id="${i.id}"><i class="fas fa-info-circle"></i> تفاصيل</button>
@@ -356,7 +689,7 @@
       });
       teachersContainer.innerHTML = filtered.map(t => `
         <div class="card teacher-card">
-          <img src="${t.image}" class="card-img" alt="${t.name}">
+          <img src="${t.image}" class="card-img" alt="${t.name}" loading="lazy">
           <div class="card-body">
             <div class="card-title">${t.name}</div>
             <div class="card-sub"><i class="fas fa-briefcase"></i> ${t.specialty}</div>
@@ -369,7 +702,7 @@
     // أحداث الفلاتر
     globalCityFilter.addEventListener('change', function() {
       if (listPage.classList.contains('active')) {
-        updateNeighborhoodFilter(this.value);  // تحديث قائمة الأحياء
+        updateNeighborhoodFilter(this.value);
         if (showInstitutesBtn.classList.contains('active')) renderInstitutes();
         else renderTeachers();
       }
@@ -378,7 +711,7 @@
     priceFilter.addEventListener('change', renderInstitutes);
     specialtyFilter.addEventListener('change', renderTeachers);
 
-    // التنقل بين الصفحات والأقسام
+    // التنقل بين الصفحات
     navItems.forEach(item => {
       item.addEventListener('click', function() {
         const page = this.dataset.page;
@@ -390,7 +723,7 @@
         } else {
           listPage.classList.add('active');
           homePage.classList.remove('active');
-          updateNeighborhoodFilter(globalCityFilter.value); // مزامنة الأحياء
+          updateNeighborhoodFilter(globalCityFilter.value);
           if (showInstitutesBtn.classList.contains('active')) renderInstitutes();
           else renderTeachers();
         }
@@ -417,7 +750,7 @@
       renderTeachers();
     });
 
-    // النافذة المنبثقة
+    // أحداث الأزرار
     document.body.addEventListener('click', function(e) {
       if (e.target.closest('.detail-btn')) {
         const btn = e.target.closest('.detail-btn');
@@ -427,58 +760,14 @@
       }
     });
 
-    function openModal(type, id) {
-      if (type === 'institute') {
-        const i = institutes.find(x => x.id === id);
-        if (!i) return;
-        modalContent.innerHTML = `
-          <div class="media-row">
-            <img src="${i.image}" alt="${i.name}">
-            <video controls><source src="${i.videoUrl}" type="video/mp4">متصفحك لا يدعم الفيديو.</video>
-          </div>
-          <h3 style="margin:15px 0 5px; text-align:center;">${i.name}</h3>
-          <div style="background:#f8f9fe; border-radius:16px; padding:14px; margin:10px 0;">
-            <p><i class="fas fa-info-circle" style="color:#6C5CE7;"></i> <strong>عن المعهد:</strong> ${i.about}</p>
-          </div>
-          <div style="background:#f8f9fe; border-radius:16px; padding:14px; margin:10px 0;">
-            <p style="margin-top:8px;"><i class="fas fa-money-bill-wave" style="color:#6C5CE7;"></i> <strong>التكلفة:</strong> ${i.price} دولار</p>
-          </div>
-          <div class="working-hours"><i class="fas fa-calendar-alt" style="color:#6C5CE7; font-size:1.3rem;"></i><span><strong>أوقات الدوام:</strong> ${i.workingHours}</span></div>
-          <div class="working-hours"><p style="margin:10px 0;"><i class="fas fa-map-marker-alt" style="color:#6C5CE7;"></i> <strong>الموقع:</strong> ${i.location} - ${i.neighborhood}</p></div>
-          <div><strong><i class="fas fa-users" style="color:#6C5CE7;"></i> الأساتذة في هذا المعهد:</strong><div class="teacher-tags">${i.teachersList.map(t => `<span class="teacher-tag">${t}</span>`).join('')}</div></div>
-          <a class="whatsapp-btn" href="https://wa.me/${i.whatsapp}" target="_blank"><i class="fab fa-whatsapp"></i> تواصل واتساب وحجز مقعد</a>
-          <button class="cancel-bottom-btn" onclick="document.getElementById('detailModal').classList.remove('active')"><i class="fas fa-times"></i> إغلاق</button>
-        `;
-      } else {
-        const t = teachers.find(x => x.id === id);
-        if (!t) return;
-        modalContent.innerHTML = `
-          <div style="display:flex; gap:10px; margin:10px 0 15px;">${t.images.map(img => `<img src="${img}" style="width:48%; border-radius:20px; height:140px; object-fit:cover;">`).join('')}</div>
-          <h3>${t.name}</h3>
-          <p style="color:#6C5CE7; margin:5px 0;"><i class="fas fa-briefcase"></i> ${t.specialty}</p>
-          <div style="background:#f8f9fe; border-radius:16px; padding:14px; margin:10px 0;"><p><i class="fas fa-quote-right" style="color:#6C5CE7;"></i> <strong>عن المسيرة:</strong> ${t.bio}</p></div>
-          <div><strong><i class="fas fa-layer-group" style="color:#6C5CE7;"></i> المراحل الدراسية:</strong><div class="stages-tags">${t.stages.map(s => `<span class="stage-tag">${s}</span>`).join('')}</div></div>
-          <a class="whatsapp-btn" href="https://wa.me/${t.whatsapp}" target="_blank"><i class="fab fa-whatsapp"></i> تواصل واتساب</a>
-          <button class="cancel-bottom-btn" onclick="document.getElementById('detailModal').classList.remove('active')"><i class="fas fa-times"></i> إغلاق</button>
-        `;
-      }
-      modal.classList.add('active');
-      const content = modal.querySelector('.modal-content');
-      let startY = 0;
-      content.addEventListener('touchstart', e => startY = e.touches[0].clientY);
-      content.addEventListener('touchmove', e => {
-        if (e.touches[0].clientY - startY > 50 && content.scrollTop <= 0) modal.classList.remove('active');
-      });
-    }
+    modal.addEventListener('click', function(e) { 
+      if (e.target === modal) modal.classList.remove('active'); 
+    });
 
-    modal.addEventListener('click', function(e) { if (e.target === modal) modal.classList.remove('active'); });
-
-    // ★ تهيئة فلتر الحي بالمدينة الافتراضية (الرقة)
+    // تهيئة
     updateNeighborhoodFilter(globalCityFilter.value);
-    // عرض أولي
     renderInstitutes();
   })();
 </script>
-
 </body>
 </html>
